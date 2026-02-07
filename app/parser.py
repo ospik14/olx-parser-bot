@@ -1,7 +1,9 @@
 import asyncio
 from playwright.async_api import async_playwright
+from dependencies import db_dep
+from models.tables_models import Advertisement
 
-async def test_run():
+async def test_run(db: db_dep):
     async with async_playwright() as p:
         page_link = 'https://www.olx.ua'
 
@@ -34,6 +36,17 @@ async def test_run():
             print(f'локація і дата: {location_date}')
             print(f'посилання: {full_link}')
             print(" ")
+
+            #advert = Advertisement(                    WRONG!
+            #    advert_id = id,
+            #    title = title,
+            #   image_url = image,
+            #   price = price,
+            #    location_and_date = location_date,
+            #    advert_url = full_link
+            #)
+            #db.add(advert)
+            #await db.commit()
 
         await browser.close()
     
