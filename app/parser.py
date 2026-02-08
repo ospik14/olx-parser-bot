@@ -2,23 +2,23 @@ import asyncio
 from playwright.async_api import async_playwright
 from dependencies import db_dep
 from models.tables_models import Advertisement
+from app.repositories import ads
 
-async def test_run(db: db_dep):
+async def search_for_ads(page_link):
     async with async_playwright() as p:
-        page_link = 'https://www.olx.ua'
-
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
 
         page = await browser.new_page()
-        await page.goto(f'{page_link}/uk')
+        await page.goto(page_link)
 
-        await page.fill('input[id="search"]', 'Samsung a20')
         await page.keyboard.press('Enter')
 
         await page.wait_for_selector('[data-testid="listing-grid"]')
+        advert_grid = page.get_by_test_id('listing-grid').first
 
-        cards = await page.locator('[data-testid="l-card"]').all()
+        cards = await advert_grid.get_by_test_id('l-card').all()
+        adverts = [Advertisement]
         for card in cards:
             await card.scroll_into_view_if_needed()
             id = await card.get_attribute('id')
@@ -27,27 +27,17 @@ async def test_run(db: db_dep):
             price = await card.locator('[data-testid="ad-price"]').inner_text()
             location_date = await card.locator('[data-testid="location-date"]').inner_text()
             link_part = await card.locator('[data-testid="ad-card-title"] a').get_attribute('href')
-            full_link = f'{page_link}{link_part}'
-
-            print(f'id: {id}')
-            print(f'image: {image}')
-            print(f'назва: {title}')
-            print(f'ціна: {price}')
-            print(f'локація і дата: {location_date}')
-            print(f'посилання: {full_link}')
-            print(" ")
-
-            #advert = Advertisement(                    WRONG!
-            #    advert_id = id,
-            #    title = title,
-            #   image_url = image,
-            #   price = price,
-            #    location_and_date = location_date,
-            #    advert_url = full_link
-            #)
-            #db.add(advert)
-            #await db.commit()
-
+            full_link = f'https://www.olx.ua{link_part}'
+   
+            adverts.append(
+                Advertisement(                   
+                    advert_id = id,
+                    title = title,
+                    image_url = image,
+                    price = price,
+                    location_and_date = location_date,
+                    advert_url = full_link
+                )
+            )
         await browser.close()
     
-asyncio.run(test_run())
