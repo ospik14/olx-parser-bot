@@ -17,7 +17,7 @@ class SearchTask(Base):
     __tablename__='search_tasks'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    owner_id: Mapped[int]
+    owner_id: Mapped[str]
     search_link: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
 

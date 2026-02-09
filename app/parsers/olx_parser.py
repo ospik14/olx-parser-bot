@@ -1,8 +1,5 @@
-import asyncio
 from playwright.async_api import async_playwright
-from dependencies import db_dep
-from models.tables_models import Advertisement
-from app.repositories import ads
+from schemas.advert import AdsResponse
 
 async def search_for_ads(page_link):
     async with async_playwright() as p:
@@ -18,7 +15,7 @@ async def search_for_ads(page_link):
         advert_grid = page.get_by_test_id('listing-grid').first
 
         cards = await advert_grid.get_by_test_id('l-card').all()
-        adverts = [Advertisement]
+        adverts = [AdsResponse]
         for card in cards:
             await card.scroll_into_view_if_needed()
             id = await card.get_attribute('id')
@@ -30,7 +27,7 @@ async def search_for_ads(page_link):
             full_link = f'https://www.olx.ua{link_part}'
    
             adverts.append(
-                Advertisement(                   
+                AdsResponse(                   
                     advert_id = id,
                     title = title,
                     image_url = image,
@@ -40,4 +37,6 @@ async def search_for_ads(page_link):
                 )
             )
         await browser.close()
+
+        return adverts
     
