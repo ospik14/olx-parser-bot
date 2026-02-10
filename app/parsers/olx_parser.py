@@ -15,7 +15,7 @@ async def search_for_ads(page_link):
         advert_grid = page.get_by_test_id('listing-grid').first
 
         cards = await advert_grid.get_by_test_id('l-card').all()
-        adverts = [AdsResponse]
+        adverts: dict[int, AdsResponse] = {}
         for card in cards:
             await card.scroll_into_view_if_needed()
             id = await card.get_attribute('id')
@@ -25,18 +25,18 @@ async def search_for_ads(page_link):
             location_date = await card.locator('[data-testid="location-date"]').inner_text()
             link_part = await card.locator('[data-testid="ad-card-title"] a').get_attribute('href')
             full_link = f'https://www.olx.ua{link_part}'
-   
-            adverts.append(
-                AdsResponse(                   
-                    advert_id = id,
+
+            adverts[id] = AdsResponse (                   
+                    id = id,
                     title = title,
                     image_url = image,
                     price = price,
                     location_and_date = location_date,
                     advert_url = full_link
                 )
-            )
+            
         await browser.close()
 
         return adverts
+    
     

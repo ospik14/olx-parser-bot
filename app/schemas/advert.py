@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
 class AdsResponse(BaseModel):
-    advert_id: int
+    id: int
     title: str
-    image_ur: str
-    price: float
+    image_url: str
+    price: str
     location_and_date: str
     advert_url: str

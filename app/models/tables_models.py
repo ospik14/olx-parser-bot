@@ -1,4 +1,4 @@
-from core.database import Base
+from app.core.database import Base
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -9,7 +9,7 @@ class Advertisement(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255))
     image_url: Mapped[str]
-    price: Mapped[int]
+    price: Mapped[str]
     location_and_date: Mapped[str]
     advert_url: Mapped[str] = mapped_column(unique=True)
 
