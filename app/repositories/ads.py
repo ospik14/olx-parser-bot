@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.tables_models import Advertisement, SearchTask, SearchAd
 
@@ -25,8 +26,16 @@ async def get_ads_id(db: AsyncSession, search_id: int, ads_id: set):
 
     return set(ads.scalars().all())
 
-async def create_ads(db: AsyncSession, adverts: list[Advertisement]):
-    db.add(adverts)
+async def create_ads(db: AsyncSession, adverts: list[dict]):
+    stmt = (
+        insert(Advertisement).values(adverts)
+        .on_conflict_do_nothing(index_elements=['id'])
+    )
+    
+    await db.execute(stmt)
     await db.commit()
 
+async def create_searches_ads(db: AsyncSession, s_ads: list[SearchAd]):
+    db.add(s_ads)
+    await db.commit()
 

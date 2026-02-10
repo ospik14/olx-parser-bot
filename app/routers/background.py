@@ -5,8 +5,12 @@ from services.main_process import pars_loop
 from dependencies import db_dep
 
 @asynccontextmanager
-async def lifespan(app: FastAPI, db: db_dep):
-    
-    parser_task = asyncio.create_task(pars_loop(db))
+async def lifespan(app: FastAPI):
+    parser_task = asyncio.create_task(pars_loop())
     yield
     parser_task.cancel()
+
+    try:
+        await parser_task
+    except asyncio.CancelledError:
+        pass
