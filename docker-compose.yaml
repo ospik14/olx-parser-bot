@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: olx_parser
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
   
@@ -17,7 +17,7 @@ services:
     container_name: olx_parser_adminer
     restart: always
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       - db
 

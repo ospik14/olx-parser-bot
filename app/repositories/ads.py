@@ -20,7 +20,7 @@ async def get_ads_id(db: AsyncSession, search_id: int, ads_id: set):
     query = (
         select(SearchAd.ads_id)
         .where(SearchAd.search_id == search_id)
-        .where(SearchAd.ads_id in ads_id)
+        .where(SearchAd.ads_id.in_(ads_id))
     )
     ads = await db.execute(query)
 
@@ -35,7 +35,8 @@ async def create_ads(db: AsyncSession, adverts: list[dict]):
     await db.execute(stmt)
     await db.commit()
 
-async def create_searches_ads(db: AsyncSession, s_ads: list[SearchAd]):
-    db.add(s_ads)
+async def create_searches_ads(db: AsyncSession, s_ads: list[dict]):
+    stmt = (insert(SearchAd).values(s_ads))
+    await db.execute(stmt)
     await db.commit()
 
