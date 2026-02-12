@@ -1,5 +1,17 @@
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import async_playwright, Browser
 from schemas.advert import AdsResponse
+
+async def improve_link(url: str):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+
+    query_params['search[order]'] = ['created_at:desc']
+
+    new_query = urlencode(query_params, doseq=True)
+    new_url = urlunparse(parsed_url._replace(query=new_query))
+
+    return new_url
 
 async def search_for_ads(page_link, browser: Browser):
     context = await browser.new_context()

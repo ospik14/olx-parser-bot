@@ -1,5 +1,5 @@
-from models.tables_models import SearchTask, SearchAd
-from parsers.olx_parser import search_for_ads
+from models.tables_models import SearchTask
+from parsers.olx_parser import search_for_ads, improve_link
 from repositories.ads import create_new_search_task, get_ads_id, create_ads, create_searches_ads
 
 async def add_new_search_link(db, link: str, user_id: str):
@@ -8,7 +8,8 @@ async def add_new_search_link(db, link: str, user_id: str):
 
 
 async def find_new_ads(sem, db, search_url: str, search_id: int, browser):
-    ads: dict = await search_for_ads(search_url, browser)
+    improved_link = await improve_link(search_url)
+    ads: dict = await search_for_ads(improved_link, browser)
     exist_ads: set = await get_ads_id(db, search_id, ads)
     to_save = [ads[id] for id in (ads.keys() - exist_ads)]
     if not to_save: return 
