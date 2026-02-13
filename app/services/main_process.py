@@ -1,7 +1,7 @@
 import asyncio
-from repositories.ads import get_active_searches
-from services.advert_se import find_new_ads
-from core.database import AsyncSessionLocal
+from app.repositories.ads import get_active_searches
+from app.services.advert_se import find_new_ads
+from app.core.database import AsyncSessionLocal
 from playwright.async_api import async_playwright
 
 
@@ -15,7 +15,7 @@ async def pars_loop():
 
                 sem = asyncio.Semaphore(5)
                 tasks = [
-                    find_new_ads(sem, db, search.search_link, search.id, browser)
+                    find_new_ads(sem, db, search, browser)
                     for search in searches
                 ]
         

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import commands, background
+from app.routers import commands, background
 
 app = FastAPI(lifespan=background.lifespan)
 

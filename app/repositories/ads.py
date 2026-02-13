@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.tables_models import Advertisement, SearchTask, SearchAd
+from app.models.tables_models import Advertisement, SearchTask, SearchAd
 
 async def create_new_search_task(db: AsyncSession, search: SearchTask):
     db.add(search)

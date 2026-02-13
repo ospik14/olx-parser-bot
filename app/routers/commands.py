@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from dependencies import db_dep
-from services.advert_se import add_new_search_link
-from schemas.search_task import CreateSearchTask
+from app.dependencies import db_dep
+from app.services.advert_se import add_new_search_link
+from app.schemas.search_task import CreateSearchTask
 
 router = APIRouter()
 

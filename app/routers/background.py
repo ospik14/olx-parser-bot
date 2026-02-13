@@ -1,7 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from services.main_process import pars_loop
+from app.services.main_process import pars_loop
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

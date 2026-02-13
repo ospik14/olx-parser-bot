@@ -1,7 +1,7 @@
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart
-from texts.message_texts import COMMAND_START
-from utils.api_request import create_searches_task
+from bot.texts.message_texts import COMMAND_START
+from bot.utils.api_request import create_searches_task
 
 router = Router()
 
