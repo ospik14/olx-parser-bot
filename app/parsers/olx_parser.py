@@ -2,7 +2,7 @@ from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import Browser, TimeoutError, Error
 from schemas.advert import AdsResponse
 
-async def improve_link(url: str):
+def improve_link(url: str):
     parsed_url = urlparse(url)
     query_params = parse_qs(parsed_url.query)
 
