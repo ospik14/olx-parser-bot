@@ -23,7 +23,7 @@ async def return_new_ads(ads_response: dict):
         print(caption)
 
         try:
-            if img_url:
+            if img_url.startswith('https'):
                 await bot.send_photo(
                     chat_id=user_id, 
                     photo=img_url,

@@ -21,7 +21,11 @@ async def intercept_route(route):
 
 async def search_for_ads(page_link, browser: Browser):
     try:
-        context = await browser.new_context()
+        print('pars start')
+        context = await browser.new_context(
+            timezone_id='Europe/Kiev',
+            locale='uk-Ua'
+        )
 
         page = await context.new_page()
         await page.route('**/*', intercept_route)
@@ -36,7 +40,7 @@ async def search_for_ads(page_link, browser: Browser):
         for card in cards:
             await card.scroll_into_view_if_needed()
             id = await card.get_attribute('id')
-            image = await card.locator('img').first.get_attribute('src') or 'зображення немає'
+            image = await card.locator('img').first.get_attribute('srcset') or 'not'
             title = await card.locator('h4').inner_text()
             price = await card.locator('[data-testid="ad-price"]').inner_text()
             location_date = await card.locator('[data-testid="location-date"]').inner_text()
@@ -46,12 +50,12 @@ async def search_for_ads(page_link, browser: Browser):
             adverts[int(id)] = AdsResponse (                   
                     id = int(id),
                     title = title,
-                    image_url = image,
+                    image_url = image.split(';')[0],
                     price = price,
                     location_and_date = location_date,
                     advert_url = full_link
                 )
-                
+        print('pars done')
         return adverts
     
     except TimeoutError:

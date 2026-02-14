@@ -18,8 +18,6 @@ async def pars_loop():
                     find_new_ads(sem, db, search, browser)
                     for search in searches
                 ]
-        
                 await asyncio.gather(*tasks, return_exceptions=True)
 
-                
         await asyncio.sleep(120)
