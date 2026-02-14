@@ -1,7 +1,7 @@
 import asyncio
-from app.repositories.ads import get_active_searches
-from app.services.advert_se import find_new_ads
-from app.core.database import AsyncSessionLocal
+from repositories.ads import get_active_searches
+from services.advert_se import find_new_ads
+from core.database import AsyncSessionLocal
 from playwright.async_api import async_playwright
 
 

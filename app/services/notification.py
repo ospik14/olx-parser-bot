@@ -1,6 +1,6 @@
 import asyncio
-from bot.main import bot
-from bot.texts.message_texts import ADS_RESPONSE_TEXT
+from loader import bot
+from texts.message_texts import ADS_RESPONSE_TEXT
 
 async def return_new_ads(ads_response: dict):
     user_id = ads_response.get('user_id')
@@ -16,9 +16,11 @@ async def return_new_ads(ads_response: dict):
         caption = ADS_RESPONSE_TEXT.format(
             title=title,
             price=price,
-            loc_and_date=loc_and_date,
+            location_and_date=loc_and_date,
             advert_url=advert_url,
         )
+        print('X'*100)
+        print(caption)
 
         try:
             if img_url:

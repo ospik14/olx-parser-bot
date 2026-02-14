@@ -1,6 +1,6 @@
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import Browser, TimeoutError, Error
-from app.schemas.advert import AdsResponse
+from schemas.advert import AdsResponse
 
 def improve_link(url: str):
     parsed_url = urlparse(url)
