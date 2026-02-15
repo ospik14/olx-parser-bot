@@ -9,14 +9,15 @@ async def create_new_search_task(search: SearchTask):
         db.add(search)
         await db.commit()
 
-async def get_active_searches(db: AsyncSession):
-    query = (
-        select(SearchTask)
-        .where(SearchTask.is_active == True)
-    )
-    searches = await db.execute(query)
+async def get_active_searches():
+    async with AsyncSessionLocal() as db:
+        query = (
+            select(SearchTask)
+            .where(SearchTask.is_active == True)
+        )
+        searches = await db.execute(query)
 
-    return searches.scalars().all()
+        return searches.scalars().all()
 
 async def get_ads_id(db: AsyncSession, search_id: int, ads_id: set):
     query = (

@@ -2,11 +2,11 @@ from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import Browser, TimeoutError, Error
 from schemas.advert import AdsResponse
 
-def improve_link(url: str):
+def improve_link(url: str, param: dict):
     parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
+    query_params: dict = parse_qs(parsed_url.query)
 
-    query_params['search[order]'] = ['created_at:desc']
+    query_params.update(param)
 
     new_query = urlencode(query_params, doseq=True)
     new_url = urlunparse(parsed_url._replace(query=new_query))
@@ -40,17 +40,25 @@ async def search_for_ads(page_link, browser: Browser):
         for card in cards:
             await card.scroll_into_view_if_needed()
             id = await card.get_attribute('id')
-            image = await card.locator('img').first.get_attribute('srcset') or 'not'
+            image = card.locator('img').first
+            srcset_url = await image.get_attribute('srcset') or None
+            src_url = await image.get_attribute('src') or None
             title = await card.locator('h4').inner_text()
             price = await card.locator('[data-testid="ad-price"]').inner_text()
             location_date = await card.locator('[data-testid="location-date"]').inner_text()
             link_part = await card.locator('[data-testid="ad-card-title"] a').get_attribute('href')
             full_link = f'https://www.olx.ua{link_part}'
+            
+            image_url = None
+            if srcset_url:
+                image_url = srcset_url.split(';')[0]
+            elif src_url:
+                image_url = src_url.split(';')[0]
 
             adverts[int(id)] = AdsResponse (                   
                     id = int(id),
                     title = title,
-                    image_url = image.split(';')[0],
+                    image_url = image_url,
                     price = price,
                     location_and_date = location_date,
                     advert_url = full_link
@@ -64,7 +72,7 @@ async def search_for_ads(page_link, browser: Browser):
     except Error as e:
         print(f"Playwright Error: {e}")
         return {}
-    except Exception:
+    except Exception as e:
         print(f"Code Error: {e}")
         return {}
 

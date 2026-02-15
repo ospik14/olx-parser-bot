@@ -8,16 +8,15 @@ from playwright.async_api import async_playwright
 async def pars_loop():
     while True:
         
-        async with AsyncSessionLocal() as db:
-            async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True)
-                searches = await get_active_searches(db)
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            searches = await get_active_searches()
 
-                sem = asyncio.Semaphore(5)
-                tasks = [
-                    find_new_ads(sem, db, search, browser)
-                    for search in searches
-                ]
-                await asyncio.gather(*tasks, return_exceptions=True)
+            sem = asyncio.Semaphore(5)
+            tasks = [
+                find_new_ads(sem, search, browser)
+                for search in searches
+            ]
+            await asyncio.gather(*tasks, return_exceptions=True)
 
         await asyncio.sleep(120)

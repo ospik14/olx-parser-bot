@@ -1,5 +1,6 @@
+from datetime import datetime
 from core.database import Base
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, func, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -8,7 +9,7 @@ class Advertisement(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255))
-    image_url: Mapped[str]
+    image_url: Mapped[str | None]
     price: Mapped[str]
     location_and_date: Mapped[str]
     advert_url: Mapped[str] = mapped_column(unique=True)
@@ -20,6 +21,10 @@ class SearchTask(Base):
     owner_id: Mapped[str]
     search_link: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        server_default=func.now()
+    )
 
 class SearchAd(Base):
     __tablename__='search_ads'
