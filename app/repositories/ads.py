@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import AsyncSessionLocal
@@ -8,6 +8,19 @@ async def create_new_search_task(search: SearchTask):
     async with AsyncSessionLocal() as db:
         db.add(search)
         await db.commit()
+
+async def get_searches_for_user(db: AsyncSession, user_id: int):
+    query = (
+        select(func.count())
+        .select_from(SearchTask)
+        .where(
+            SearchTask.owner_id == user_id,
+            SearchTask.is_active == True
+        )
+    )
+    count = await db.execute(query)
+    
+    return count.scalar() or 0
 
 async def get_active_searches():
     async with AsyncSessionLocal() as db:

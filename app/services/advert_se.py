@@ -3,12 +3,22 @@ from datetime import datetime, timezone, timedelta
 from core.database import AsyncSessionLocal
 from models.tables_models import SearchTask
 from parsers.olx_parser import search_for_ads, improve_link
-from repositories.ads import create_new_search_task, get_ads_id, create_ads, create_searches_ads
+from repositories.ads import create_new_search_task, get_ads_id, create_ads, \
+create_searches_ads, get_searches_for_user
+from repositories.users import get_user
 from services.notification import return_new_ads
+from core.exceptions import LimitExceeded
 
 async def add_new_search_link(link: str, user_id: str):
-    search = SearchTask(search_link=link, owner_id=str(user_id))
-    await create_new_search_task(search)
+    async with AsyncSessionLocal() as db:
+        user = await get_user(db, user_id)
+        count_of_searches = await get_searches_for_user(db, user_id)
+
+        if user.max_searches <= count_of_searches:
+            raise LimitExceeded
+        
+        search = SearchTask(search_link=link, owner_id=user_id)
+        await create_new_search_task(search)
 
 async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
     async with sem:
@@ -39,7 +49,6 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
             except Exception:
                 return
 
-            
             
             if not is_warmup_mode:
                 await return_new_ads({'user_id': search.owner_id, 'ads': new_ads})
