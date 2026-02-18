@@ -19,8 +19,6 @@ async def return_new_ads(ads_response: dict):
             location_and_date=loc_and_date,
             advert_url=advert_url,
         )
-        print('X'*100)
-        print(caption)
 
         try:
             if img_url.startswith('https'):
