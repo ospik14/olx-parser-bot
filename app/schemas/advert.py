@@ -5,5 +5,6 @@ class AdsResponse(BaseModel):
     title: str
     image_url: str | None
     price: str
-    location_and_date: str
+    location: str
+    date: str
     advert_url: str

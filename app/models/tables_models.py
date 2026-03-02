@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.database import Base
+from app.core.database import Base
 from sqlalchemy import String, ForeignKey, func, DateTime, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -11,7 +11,8 @@ class Advertisement(Base):
     title: Mapped[str] = mapped_column(String(255))
     image_url: Mapped[str | None]
     price: Mapped[str]
-    location_and_date: Mapped[str]
+    location: Mapped[str]
+    date: Mapped[str]
     advert_url: Mapped[str] = mapped_column(unique=True)
 
 class SearchTask(Base):

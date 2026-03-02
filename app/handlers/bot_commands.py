@@ -28,8 +28,8 @@ async def new_search_link(message: types.Message):
     user_id = message.from_user.id
     try:
         await add_new_search_link(link, user_id)
-        await message.answer(NEW_SEARCHES)
+        await message.answer(NEW_SEARCHES, parse_mode='HTML')
     except LimitExceeded:
-        await message.answer(SEARCHES_LIMIT)
+        await message.answer(SEARCHES_LIMIT, parse_mode='HTML')
 
     

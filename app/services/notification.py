@@ -9,14 +9,16 @@ async def return_new_ads(ads_response: dict):
     for ad in new_ads:
         title = ad.get('title')
         price = ad.get('price')
-        loc_and_date = ad.get('location_and_date')
+        location = ad.get('location')
+        date = ad.get('date')
         advert_url = ad.get('advert_url')
         img_url = ad.get('image_url')
 
         caption = ADS_RESPONSE_TEXT.format(
             title=title,
             price=price,
-            location_and_date=loc_and_date,
+            location=location,
+            date=date,
             advert_url=advert_url,
         )
 

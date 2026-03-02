@@ -14,7 +14,7 @@ def improve_link(url: str, param: dict):
     return new_url
 
 async def intercept_route(route):
-    if route.request.resource_type in ['image', 'media', 'font']:
+    if route.request.resource_type in ['media', 'font']:
         await route.abort()
     else:
         await route.continue_()
@@ -49,6 +49,9 @@ async def search_for_ads(page_link, browser: Browser):
             link_part = await card.locator('[data-testid="ad-card-title"] a').get_attribute('href')
             full_link = f'https://www.olx.ua{link_part}'
             
+            if not 'Сьогодні' in location_date:
+                continue
+
             image_url = None
             if srcset_url:
                 image_url = srcset_url.split(';')[0]
@@ -60,7 +63,8 @@ async def search_for_ads(page_link, browser: Browser):
                     title = title,
                     image_url = image_url,
                     price = price,
-                    location_and_date = location_date,
+                    location = location_date.split('-')[0],
+                    date = location_date.split('-')[1],
                     advert_url = full_link
                 )
         print('pars done')
