@@ -1,6 +1,10 @@
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import Browser, TimeoutError, Error
 from schemas.advert import AdsResponse
+
+TZ_KYIV = ZoneInfo("Europe/Kyiv")
 
 def improve_link(url: str, param: dict):
     parsed_url = urlparse(url)
@@ -46,11 +50,27 @@ async def search_for_ads(page_link, browser: Browser):
             title = await card.locator('h4').inner_text()
             price = await card.locator('[data-testid="ad-price"]').inner_text()
             location_date = await card.locator('[data-testid="location-date"]').inner_text()
+            location = location_date.split('-')[0]
+            date = location_date.split('-')[1]
             link_part = await card.locator('[data-testid="ad-card-title"] a').get_attribute('href')
             full_link = f'https://www.olx.ua{link_part}'
             
-            if not 'Сьогодні' in location_date:
+            if not 'Сьогодні' in date:
                 continue
+
+            
+            time_part = date.split(' ')[-1] 
+            current_time = datetime.now(TZ_KYIV)
+            parsed_time = datetime.strptime(time_part, "%H:%M").time()
+            creation_time = datetime.combine(
+                current_time.date(),
+                parsed_time,
+                tzinfo=TZ_KYIV
+            )
+            
+            if current_time - creation_time > timedelta(minutes=40):
+                continue
+            
 
             image_url = None
             if srcset_url:
@@ -63,8 +83,8 @@ async def search_for_ads(page_link, browser: Browser):
                     title = title,
                     image_url = image_url,
                     price = price,
-                    location = location_date.split('-')[0],
-                    date = location_date.split('-')[1],
+                    location = location,
+                    date = current_time.strftime('%H:%M'),
                     advert_url = full_link
                 )
         print('pars done')
