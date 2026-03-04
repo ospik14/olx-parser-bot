@@ -4,21 +4,31 @@ from core.database import AsyncSessionLocal
 from models.tables_models import SearchTask
 from parsers.olx_parser import search_for_ads, improve_link
 from repositories.ads import create_new_search_task, get_ads_id, create_ads, \
-create_searches_ads, get_searches_for_user
+create_searches_ads, get_searches_count, get_searches_for_user
 from repositories.users import get_user
 from services.notification import return_new_ads
 from core.exceptions import LimitExceeded
+from schemas.search_task import SearchTaskResponse
 
 async def add_new_search_link(link: str, user_id: str):
     async with AsyncSessionLocal() as db:
         user = await get_user(db, user_id)
-        count_of_searches = await get_searches_for_user(db, user_id)
+        count_of_searches = await get_searches_count(db, user_id)
 
         if user.max_searches <= count_of_searches:
             raise LimitExceeded
         
         search = SearchTask(search_link=link, owner_id=user_id)
         await create_new_search_task(search)
+
+async def get_my_searches(user_id: int):
+    async with AsyncSessionLocal() as db:
+        searches = await get_searches_for_user(user_id)
+
+        return [
+            SearchTaskResponse.model_validate(search)
+            for search in searches
+        ]
 
 async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
     async with sem:

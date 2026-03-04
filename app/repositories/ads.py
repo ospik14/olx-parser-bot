@@ -9,7 +9,7 @@ async def create_new_search_task(search: SearchTask):
         db.add(search)
         await db.commit()
 
-async def get_searches_for_user(db: AsyncSession, user_id: int):
+async def get_searches_count(db: AsyncSession, user_id: int):
     query = (
         select(func.count())
         .select_from(SearchTask)
@@ -31,6 +31,17 @@ async def get_active_searches():
         searches = await db.execute(query)
 
         return searches.scalars().all()
+    
+async def get_searches_for_user(db: AsyncSession, user_id: int):
+    query = (
+        select(SearchTask)
+        .where(
+            SearchTask.owner_id == user_id,
+        )
+    )
+    searches = await db.execute(query)
+
+    return searches.scalars().all()
 
 async def get_ads_id(db: AsyncSession, search_id: int, ads_id: set):
     query = (
