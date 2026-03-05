@@ -23,7 +23,7 @@ async def add_new_search_link(link: str, user_id: str):
 
 async def get_my_searches(user_id: int):
     async with AsyncSessionLocal() as db:
-        searches = await get_searches_for_user(user_id)
+        searches = await get_searches_for_user(db, user_id)
 
         return [
             SearchTaskResponse.model_validate(search)

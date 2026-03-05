@@ -1,11 +1,13 @@
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart
-from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, NEW_SEARCHES, HELP_TEXT
-from services.advert_se import add_new_search_link
+from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, \
+NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT
+from services.advert_se import add_new_search_link, get_my_searches
 from models.tables_models import User
 from repositories.users import create_user
 from core.exceptions import LimitExceeded
 from keyboards.menu import keyboard
+from keyboards.inline import get_search_keyboard
 
 router = Router()
 
@@ -42,4 +44,15 @@ async def help_info(message: types.Message):
 
 @router.message(F.text == '🔍 Мої пошуки')
 async def my_searches(message: types.Message):
-    await message.answer()
+    user_id = message.from_user.id
+    searches = await get_my_searches(user_id)
+    for search in searches:
+        answer_text = MY_SEARCHS_TEXT.format(
+            url = search.search_link,
+            created_at = search.created_at,
+            status = '🟢 Активно' if search.is_active else '🔴 Не активно'
+        )
+        await message.answer(
+            answer_text, 
+            reply_markup=get_search_keyboard(search.is_active)
+        )
