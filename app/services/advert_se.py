@@ -4,7 +4,8 @@ from core.database import AsyncSessionLocal
 from models.tables_models import SearchTask
 from parsers.olx_parser import search_for_ads, improve_link
 from repositories.ads import create_new_search_task, get_ads_id, create_ads, \
-create_searches_ads, get_searches_count, get_searches_for_user
+create_searches_ads, get_searches_count, get_searches_for_user, \
+get_search_for_id, update_search_status
 from repositories.users import get_user
 from services.notification import return_new_ads
 from core.exceptions import LimitExceeded
@@ -38,6 +39,7 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
 
             improved_link = improve_link(search.search_link, {'search[order]':'created_at:desc'})
             ads: dict = await search_for_ads(improved_link, browser)
+            if not ads: return
 
             if is_warmup_mode: 
                 two_page_link = improve_link(improved_link, {'page':2})
@@ -62,3 +64,16 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
             
             if not is_warmup_mode:
                 await return_new_ads({'user_id': search.owner_id, 'ads': new_ads})
+
+async def change_status_in_search(search_id: int, user_id: int):
+    async with AsyncSessionLocal() as db:
+
+        user = await get_user(db, user_id)
+        search = await get_search_for_id(db, search_id)
+        count_of_searches = await get_searches_count(db, user_id)
+
+        if search.is_active and count_of_searches >= user.max_searches:
+            raise LimitExceeded
+        
+        await update_search_status(db, search_id)
+

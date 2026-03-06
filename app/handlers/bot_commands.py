@@ -2,7 +2,7 @@ from aiogram import Router, types, F
 from aiogram.filters import CommandStart
 from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, \
 NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT
-from services.advert_se import add_new_search_link, get_my_searches
+from services.advert_se import add_new_search_link, get_my_searches, change_status_in_search
 from models.tables_models import User
 from repositories.users import create_user
 from core.exceptions import LimitExceeded
@@ -49,10 +49,23 @@ async def my_searches(message: types.Message):
     for search in searches:
         answer_text = MY_SEARCHS_TEXT.format(
             url = search.search_link,
-            created_at = search.created_at,
+            created_at = search.created_at.strftime('%d.%m'),
             status = '🟢 Активно' if search.is_active else '🔴 Не активно'
         )
         await message.answer(
             answer_text, 
-            reply_markup=get_search_keyboard(search.is_active)
+            reply_markup=get_search_keyboard(search.is_active, search.id)
         )
+
+@router.callback_query(F.data.startswith('status'))
+async def process_quality_choice(callback: types.CallbackQuery):
+    await callback.answer()
+    
+    user_id = callback.from_user.id
+    search_id = callback.data.split(':')[1]
+    
+    try:
+        await change_status_in_search(int(search_id), user_id)
+    except LimitExceeded:
+        await callback.message.edit_text(SEARCHES_LIMIT, parse_mode='HTML')
+

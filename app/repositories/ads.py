@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import not_, select, update, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import AsyncSessionLocal
@@ -67,3 +67,17 @@ async def create_searches_ads(db: AsyncSession, s_ads: list[dict]):
     await db.execute(stmt)
     await db.commit()
 
+async def get_search_for_id(db: AsyncSession, id: int):
+    query = (select(SearchTask).where(SearchTask.id == id))
+    search = await db.execute(query)
+
+    return search.scalar_one_or_none()
+
+async def update_search_status(db: AsyncSession, id: int):
+    stmt = (
+        update(SearchTask)
+        .where(SearchTask.id == id)
+        .values(is_active = not_(SearchTask.is_active))
+    )
+    await db.execute(stmt)
+    await db.commit()
