@@ -2,7 +2,8 @@ from aiogram import Router, types, F
 from aiogram.filters import CommandStart
 from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, \
 NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT
-from services.advert_se import add_new_search_link, get_my_searches, change_status_in_search
+from services.advert_se import add_new_search_link, get_my_searches, \
+change_status_in_search, clean_search
 from models.tables_models import User
 from repositories.users import create_user
 from core.exceptions import LimitExceeded
@@ -10,6 +11,7 @@ from keyboards.menu import keyboard
 from keyboards.inline import get_search_keyboard
 
 router = Router()
+
 
 @router.message(CommandStart())
 async def start(message: types.Message):
@@ -65,7 +67,22 @@ async def process_quality_choice(callback: types.CallbackQuery):
     search_id = callback.data.split(':')[1]
     
     try:
-        await change_status_in_search(int(search_id), user_id)
+        search = await change_status_in_search(int(search_id), user_id)
+        edited_text = MY_SEARCHS_TEXT.format(
+            url = search.search_link,
+            created_at = search.created_at.strftime('%d.%m'),
+            status = '🟢 Активно' if search.is_active else '🔴 Не активно'
+        )
+        await callback.message.edit_text(
+            edited_text, 
+            reply_markup=get_search_keyboard(search.is_active, search.id)
+        )
     except LimitExceeded:
         await callback.message.edit_text(SEARCHES_LIMIT, parse_mode='HTML')
+
+@router.callback_query(F.data.startswith('delete'))
+async def delete_message(callback: types.CallbackQuery):
+    search_id = callback.data.split(':')[-1]
+    await clean_search(int(search_id))
+    await callback.message.delete()
 

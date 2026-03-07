@@ -5,7 +5,7 @@ from models.tables_models import SearchTask
 from parsers.olx_parser import search_for_ads, improve_link
 from repositories.ads import create_new_search_task, get_ads_id, create_ads, \
 create_searches_ads, get_searches_count, get_searches_for_user, \
-get_search_for_id, update_search_status
+get_search_for_id, update_search_status, delete_search
 from repositories.users import get_user
 from services.notification import return_new_ads
 from core.exceptions import LimitExceeded
@@ -76,4 +76,16 @@ async def change_status_in_search(search_id: int, user_id: int):
             raise LimitExceeded
         
         await update_search_status(db, search_id)
+
+        await db.commit()
+        await db.refresh(search)
+
+        return SearchTaskResponse.model_validate(search)
+    
+async def clean_search(search_id: int):
+    async with AsyncSessionLocal() as db:
+        try:
+            await delete_search(db, search_id)
+        except Exception:
+            return
 

@@ -1,4 +1,4 @@
-from sqlalchemy import not_, select, update, func
+from sqlalchemy import not_, select, update, delete, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import AsyncSessionLocal
@@ -78,6 +78,12 @@ async def update_search_status(db: AsyncSession, id: int):
         update(SearchTask)
         .where(SearchTask.id == id)
         .values(is_active = not_(SearchTask.is_active))
+    )
+    await db.execute(stmt)
+    
+async def delete_search(db: AsyncSession, id: int):
+    stmt = (
+        delete(SearchTask).where(SearchTask.id == id)
     )
     await db.execute(stmt)
     await db.commit()

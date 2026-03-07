@@ -8,7 +8,7 @@ def get_search_keyboard(is_active: bool, search_id: int):
     )
     btn_delete = InlineKeyboardButton(
         text='❌ Видалити',
-        callback_data="delete"
+        callback_data=f"delete:{search_id}"
     )
 
     keyboard = InlineKeyboardMarkup(
