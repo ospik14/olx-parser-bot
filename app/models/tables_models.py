@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from app.core.database import Base
 from sqlalchemy import String, ForeignKey, func, DateTime, BigInteger
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Advertisement(Base):
@@ -26,6 +26,7 @@ class SearchTask(Base):
         DateTime(timezone=True), 
         server_default=func.now()
     )
+    user: Mapped['User'] = relationship('User', foreign_keys=[owner_id], back_populates='searches')
 
 class SearchAd(Base):
     __tablename__='search_ads'
@@ -40,4 +41,9 @@ class User(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     username: Mapped[str]
     max_searches: Mapped[int] = mapped_column(default=3)
+    premium_expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc) + timedelta(days=3)
+    )
+    searches: Mapped[list['SearchTask']] = relationship('SearchTask', back_populates='user')
 

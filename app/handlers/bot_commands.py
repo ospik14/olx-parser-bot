@@ -1,3 +1,4 @@
+from datetime import datetime, timezone, timedelta
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart
 from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, \
@@ -21,7 +22,8 @@ async def start(message: types.Message):
         User(
             id=user_id, 
             username=username, 
-            max_searches=3
+            max_searches=3,
+            premium_expires_at=datetime.now(timezone.utc) + timedelta(days=0)
         )
     )
 

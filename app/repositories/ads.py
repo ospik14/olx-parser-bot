@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
 from sqlalchemy import not_, select, update, delete, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import AsyncSessionLocal
-from models.tables_models import Advertisement, SearchTask, SearchAd
+from models.tables_models import Advertisement, SearchTask, SearchAd, User
 
 async def create_new_search_task(search: SearchTask):
     async with AsyncSessionLocal() as db:
@@ -22,15 +23,27 @@ async def get_searches_count(db: AsyncSession, user_id: int):
     
     return count.scalar() or 0
 
-async def get_active_searches():
-    async with AsyncSessionLocal() as db:
-        query = (
-            select(SearchTask)
-            .where(SearchTask.is_active == True)
-        )
-        searches = await db.execute(query)
+async def get_all_active_searches(db: AsyncSession):
+    query = (
+        select(SearchTask)
+        .where(SearchTask.is_active == True)
+    )
+    searches = await db.execute(query)
 
-        return searches.scalars().all()
+    return searches.scalars().all()
+    
+async def get_premium_active_searches(db: AsyncSession):
+    query = (
+        select(SearchTask)
+        .join(SearchTask.user)
+        .where(
+            SearchTask.is_active == True,
+            User.premium_expires_at > datetime.now(timezone.utc)
+        )
+    )
+    searches = await db.execute(query)
+
+    return searches.scalars().all()
     
 async def get_searches_for_user(db: AsyncSession, user_id: int):
     query = (
