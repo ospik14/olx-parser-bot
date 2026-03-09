@@ -100,3 +100,29 @@ async def delete_search(db: AsyncSession, id: int):
     )
     await db.execute(stmt)
     await db.commit()
+
+async def get_users_searches_count(db: AsyncSession):
+    query = (
+        select(
+            SearchTask.owner_id.label('user_id'), 
+            func.count(SearchTask.id).label('searches_count')
+        )
+        .join(SearchTask.user)
+        .where(
+            SearchTask.is_active == True,
+            User.premium_expires_at < datetime.now(timezone.utc)
+        )
+        .group_by(SearchTask.owner_id)
+    )
+    result = await db.execute(query)
+
+    return result.all()
+
+async def deactivate_searches(db: AsyncSession, user_id: int):
+    stmt = (
+        update(SearchTask)
+        .where(SearchTask.owner_id == user_id)
+        .values(is_active = False)
+    )
+    await db.execute(stmt)
+    

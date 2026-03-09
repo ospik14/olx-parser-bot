@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import AsyncSessionLocal
-from models.tables_models import User
+from models.tables_models import User, SearchTask
 
 async def create_user(user: User):
     async with AsyncSessionLocal() as db:
