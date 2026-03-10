@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import Browser, TimeoutError, Error
-from playwright_stealth import stealth_async
+from playwright_stealth import stealth_async, StealthConfig
 from schemas.advert import AdsResponse
 
 TZ_KYIV = ZoneInfo("Europe/Kyiv")
@@ -36,7 +36,9 @@ async def search_for_ads(page_link, browser: Browser):
         )
 
         page = await context.new_page()
-        await stealth_async(page)
+
+        config = StealthConfig(navigator_user_agent=False)
+        await stealth_async(page, config)
         await page.route('**/*', intercept_route)
         await page.goto(page_link, timeout=15000, wait_until='domcontentloaded')
 
@@ -62,15 +64,14 @@ async def search_for_ads(page_link, browser: Browser):
             
             if not 'Сьогодні' in date:
                 continue
-
             
             time_part = date.split(' ')[-1] 
-            current_time = datetime.now(TZ_KYIV)
+            current_time = datetime.now(timezone.utc)
             parsed_time = datetime.strptime(time_part, "%H:%M").time()
             creation_time = datetime.combine(
                 current_time.date(),
                 parsed_time,
-                tzinfo=TZ_KYIV
+                tzinfo=timezone.utc
             )
             
             if current_time - creation_time > timedelta(minutes=40):
@@ -89,10 +90,11 @@ async def search_for_ads(page_link, browser: Browser):
                     image_url = image_url,
                     price = price,
                     location = location,
-                    date = current_time.strftime('%H:%M'),
+                    date = (current_time+timedelta(hours=2)).strftime('%H:%M'),
                     advert_url = full_link
                 )
         print('pars done')
+
         return adverts
     
     except TimeoutError:
