@@ -16,8 +16,9 @@ async def add_new_search_link(link: str, user_id: str):
         user = await get_user(db, user_id)
         count_of_searches = await get_searches_count(db, user_id)
 
-        if user.max_searches <= count_of_searches:
-            raise LimitExceeded
+        if user.premium_expires_at < datetime.now(timezone.utc):
+            if count_of_searches >= 3:
+                raise LimitExceeded
         
         search = SearchTask(search_link=link, owner_id=user_id)
         await create_new_search_task(search)
@@ -40,11 +41,6 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
             improved_link = improve_link(search.search_link, {'search[order]':'created_at:desc'})
             ads: dict = await search_for_ads(improved_link, browser)
             if not ads: return
-
-            if is_warmup_mode: 
-                two_page_link = improve_link(improved_link, {'page':2})
-                ads_page_2: dict = await search_for_ads(two_page_link, browser)
-                ads.update(ads_page_2)
 
             exist_ads: set = await get_ads_id(db, search.id, ads)
             to_save = [ads[id] for id in (ads.keys() - exist_ads)]
@@ -72,8 +68,9 @@ async def change_status_in_search(search_id: int, user_id: int):
         search = await get_search_for_id(db, search_id)
         count_of_searches = await get_searches_count(db, user_id)
 
-        if search.is_active and count_of_searches >= user.max_searches:
-            raise LimitExceeded
+        if user.premium_expires_at < datetime.now(timezone.utc):
+            if not search.is_active and count_of_searches >= 3:
+                raise LimitExceeded
         
         await update_search_status(db, search_id)
 

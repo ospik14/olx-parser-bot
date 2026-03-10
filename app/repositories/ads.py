@@ -125,4 +125,3 @@ async def deactivate_searches(db: AsyncSession, user_id: int):
         .values(is_active = False)
     )
     await db.execute(stmt)
-    

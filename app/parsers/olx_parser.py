@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from playwright.async_api import Browser, TimeoutError, Error
+from playwright_stealth import stealth
 from schemas.advert import AdsResponse
 
 TZ_KYIV = ZoneInfo("Europe/Kyiv")
@@ -28,10 +29,13 @@ async def search_for_ads(page_link, browser: Browser):
         print('pars start')
         context = await browser.new_context(
             timezone_id='Europe/Kiev',
-            locale='uk-Ua'
+            locale='uk-UA',
+            viewport={'width': 1920, 'height': 1080},
+            user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
         )
 
         page = await context.new_page()
+        await stealth(page)
         await page.route('**/*', intercept_route)
         await page.goto(page_link, timeout=15000, wait_until='domcontentloaded')
 

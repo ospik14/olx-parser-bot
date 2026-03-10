@@ -8,7 +8,7 @@ keyboard = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text='ℹ️ Допомога'),
-            KeyboardButton(text='👤 Профіль')
+            KeyboardButton(text='⭐ Преміум')
         ]
     ],
     resize_keyboard=True

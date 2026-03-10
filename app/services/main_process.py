@@ -8,7 +8,14 @@ from playwright.async_api import async_playwright
 
 async def pars_loop():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(
+            headless=True,
+            args=[
+                '--disable-blink-features=AutomationControlled',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+            ]
+        )
         sem = asyncio.Semaphore(5)
         pars_count = 0
         while True:

@@ -3,13 +3,14 @@ import logging
 from aiogram import Bot
 from loader import bot, dp
 from handlers import bot_commands
-from services.main_process import pars_loop
+from services.main_process import pars_loop, check_premium
 
 logging.basicConfig(level=logging.INFO)
 
 
 async def on_startup(bot: Bot):
     asyncio.create_task(pars_loop())
+    asyncio.create_task(check_premium())
 
 async def main():
     dp.include_router(router=bot_commands.router)

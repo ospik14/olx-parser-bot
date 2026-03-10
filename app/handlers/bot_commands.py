@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart
 from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, \
-NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT
+NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT, ADD_SEARCHES, PREMIUM_TEXT
 from services.advert_se import add_new_search_link, get_my_searches, \
 change_status_in_search, clean_search
 from models.tables_models import User
@@ -88,3 +88,10 @@ async def delete_message(callback: types.CallbackQuery):
     await clean_search(int(search_id))
     await callback.message.delete()
 
+@router.message(F.text == '➕ Додати')
+async def help_info(message: types.Message):
+    await message.answer(ADD_SEARCHES, parse_mode='HTML')
+
+@router.message(F.text == '⭐ Преміум')
+async def help_info(message: types.Message):
+    await message.answer(PREMIUM_TEXT, parse_mode='HTML')
