@@ -23,7 +23,7 @@ async def start(message: types.Message):
             id=user_id, 
             username=username, 
             max_searches=3,
-            premium_expires_at=datetime.now(timezone.utc) + timedelta(days=0)
+            premium_expires_at=datetime.now(timezone.utc) + timedelta(days=3)
         )
     )
 

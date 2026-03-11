@@ -43,8 +43,9 @@ async def search_for_ads(page_link, browser: Browser):
         await page.goto(page_link, timeout=15000, wait_until='domcontentloaded')
 
 
-        await page.wait_for_selector('[data-testid="listing-grid"]', timeout=10000)
+        await page.wait_for_selector('[data-testid="listing-grid"]', timeout=30000)
         advert_grid = page.get_by_test_id('listing-grid').first
+        print(await page.title())
 
         cards = await advert_grid.get_by_test_id('l-card').all()
         adverts: dict[int, AdsResponse] = {}
