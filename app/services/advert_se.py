@@ -39,7 +39,7 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
             is_warmup_mode = time_since_creation < timedelta(minutes=10)
 
             improved_link = improve_link(search.search_link, {'search[order]':'created_at:desc'})
-            ads: dict = await search_for_ads(improved_link, browser)
+            ads: dict = await search_for_ads(improved_link)
             if not ads: return
 
             exist_ads: set = await get_ads_id(db, search.id, ads)
@@ -48,7 +48,7 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
 
             new_ads = [ad.model_dump() for ad in to_save]
             search_ads = [
-                {'ads_id': s_ad.id, 'search_id': search.id }
+                {'advert_url': s_ad.advert_url, 'search_id': search.id }
                 for s_ad in to_save
             ]
             try:

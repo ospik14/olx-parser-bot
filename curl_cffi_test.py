@@ -1,37 +1,13 @@
-from datetime import datetime, timedelta, timezone
+import asyncio
 import json
-from zoneinfo import ZoneInfo
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+from curl_cffi.requests import AsyncSession
 from bs4 import BeautifulSoup
-from curl_cffi import AsyncSession
-from playwright.async_api import Browser, TimeoutError, Error
-from playwright_stealth import stealth_async, StealthConfig
-from schemas.advert import AdsResponse
 
-TZ_KYIV = ZoneInfo("Europe/Kyiv")
+from app.schemas.advert import AdsResponse
 
-def improve_link(url: str, param: dict):
-    parsed_url = urlparse(url)
-    query_params: dict = parse_qs(parsed_url.query)
-
-    query_params.update(param)
-
-    new_query = urlencode(query_params, doseq=True)
-    new_url = urlunparse(parsed_url._replace(query=new_query))
-
-    return new_url
-
-async def intercept_route(route):
-    if route.request.resource_type in ['media', 'font']:
-        await route.abort()
-    else:
-        await route.continue_()
-
-async def search_for_ads(page_link: str):
+async def olx_request(url: str):
     async with AsyncSession(impersonate='chrome120') as session:
-        print('pars start')
-
-        response = await session.get(page_link)  
+        response = await session.get(url)  
 
         if response.status_code != 200: 
             return
@@ -60,6 +36,7 @@ async def search_for_ads(page_link: str):
                 continue
 
         
+
         adverts: dict[str, AdsResponse] = {}
         for ad in ads_list:
             image_url = ad.get('image')[0] or None
@@ -68,6 +45,13 @@ async def search_for_ads(page_link: str):
             location = ad.get('areaServed', {}).get('name', 'Невідомо')
             link = ad.get('url')
 
+            print(f"--- Оголошення ---")
+            print(f"Назва: {ad.get('name')}")
+            print(f"Ціна: {ad.get('price')} UAH")
+            print(f"Локація: {ad.get('areaServed', {}).get('name', 'Невідомо')}")
+            print(f"Посилання: {ad.get('url')}")
+            print(f"Головне фото: {ad.get('image')[0] or None}")
+            print("-" * 25)
 
             adverts[link] = AdsResponse (                   
                     title = title,
@@ -75,10 +59,8 @@ async def search_for_ads(page_link: str):
                     price = str(price),
                     location = location,
                     advert_url = link
-                ) 
-        print('pars done')
-
-        return adverts
+                )
         
-    
-    
+
+
+asyncio.run(olx_request('https://www.olx.ua/uk/moda-i-stil/muzhskaya-odezhda/futbolki-mayki/futbolki/?currency=UAH'))

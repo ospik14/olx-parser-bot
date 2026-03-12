@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import not_, select, update, delete, func
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import DBAPIError, IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import AsyncSessionLocal
 from models.tables_models import Advertisement, SearchTask, SearchAd, User
@@ -56,11 +57,11 @@ async def get_searches_for_user(db: AsyncSession, user_id: int):
 
     return searches.scalars().all()
 
-async def get_ads_id(db: AsyncSession, search_id: int, ads_id: set):
+async def get_ads_id(db: AsyncSession, search_id: int, adverts_url: set):
     query = (
-        select(SearchAd.ads_id)
+        select(SearchAd.advert_url)
         .where(SearchAd.search_id == search_id)
-        .where(SearchAd.ads_id.in_(ads_id))
+        .where(SearchAd.advert_url.in_(adverts_url))
     )
     ads = await db.execute(query)
 
@@ -69,16 +70,37 @@ async def get_ads_id(db: AsyncSession, search_id: int, ads_id: set):
 async def create_ads(db: AsyncSession, adverts: list[dict]):
     stmt = (
         insert(Advertisement).values(adverts)
-        .on_conflict_do_nothing(index_elements=['id'])
+        .on_conflict_do_nothing(index_elements=['advert_url'])
     )
     
     await db.execute(stmt)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        print(f"Помилка унікальності або зв'язків: {e.orig}")
+    except DBAPIError as e:
+        await db.rollback()
+        print(f"Помилка бази (типи/кодування): {e.orig}")
+    except Exception as e:
+        await db.rollback()
+        print(f"Інша помилка: {e}")
 
 async def create_searches_ads(db: AsyncSession, s_ads: list[dict]):
     stmt = (insert(SearchAd).values(s_ads))
     await db.execute(stmt)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        print(f"Помилка унікальності або зв'язків: {e.orig}")
+    except DBAPIError as e:
+        await db.rollback()
+        print(f"Помилка бази (типи/кодування): {e.orig}")
+    except Exception as e:
+        await db.rollback()
+        print(f"Інша помилка: {e}")
+
 
 async def get_search_for_id(db: AsyncSession, id: int):
     query = (select(SearchTask).where(SearchTask.id == id))

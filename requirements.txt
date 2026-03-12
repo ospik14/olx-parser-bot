@@ -34,3 +34,5 @@ typing_extensions==4.15.0
 uvicorn==0.40.0
 yarl==1.22.0
 playwright-stealth==1.0.6
+curl_cffi>=0.7.0
+beautifulsoup4>=4.12.0

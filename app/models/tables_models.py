@@ -8,11 +8,10 @@ class Advertisement(Base):
     __tablename__='advertisements'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(255))
+    title: Mapped[str] = mapped_column(String(500))
     image_url: Mapped[str | None]
     price: Mapped[str]
     location: Mapped[str]
-    date: Mapped[str]
     advert_url: Mapped[str] = mapped_column(unique=True)
 
 class SearchTask(Base):
@@ -32,7 +31,7 @@ class SearchAd(Base):
     __tablename__='search_ads'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    ads_id: Mapped[int] = mapped_column(ForeignKey('advertisements.id', ondelete='CASCADE'))
+    advert_url: Mapped[int] = mapped_column(ForeignKey('advertisements.advert_url', ondelete='CASCADE'), unique=True)
     search_id: Mapped[int] = mapped_column(ForeignKey('search_tasks.id', ondelete='CASCADE'))
 
 class User(Base):
