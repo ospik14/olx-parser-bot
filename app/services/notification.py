@@ -1,6 +1,10 @@
 import asyncio
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from loader import bot
 from texts.message_texts import ADS_RESPONSE_TEXT
+
+TZ_KYIV = ZoneInfo("Europe/Kyiv")
 
 async def return_new_ads(ads_response: dict):
     user_id = ads_response.get('user_id')
@@ -10,7 +14,6 @@ async def return_new_ads(ads_response: dict):
         title = ad.get('title')
         price = ad.get('price')
         location = ad.get('location')
-        date = ad.get('date')
         advert_url = ad.get('advert_url')
         img_url = ad.get('image_url')
 
@@ -18,7 +21,7 @@ async def return_new_ads(ads_response: dict):
             title=title,
             price=price,
             location=location,
-            date=date,
+            date=datetime.now(tz=TZ_KYIV),
             advert_url=advert_url,
         )
 

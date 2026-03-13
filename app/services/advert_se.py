@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from core.database import AsyncSessionLocal
 from models.tables_models import SearchTask
 from parsers.olx_parser import search_for_ads, improve_link
-from repositories.ads import create_new_search_task, get_ads_id, create_ads, \
+from repositories.ads import create_new_search_task, get_ads_link, create_ads, \
 create_searches_ads, get_searches_count, get_searches_for_user, \
 get_search_for_id, update_search_status, delete_search
 from repositories.users import get_user
@@ -32,7 +32,7 @@ async def get_my_searches(user_id: int):
             for search in searches
         ]
 
-async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
+async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask):
     async with sem:
         async with AsyncSessionLocal() as db:
             time_since_creation = datetime.now(timezone.utc) - search.created_at
@@ -42,8 +42,10 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask, browser):
             ads: dict = await search_for_ads(improved_link)
             if not ads: return
 
-            exist_ads: set = await get_ads_id(db, search.id, ads)
-            to_save = [ads[id] for id in (ads.keys() - exist_ads)]
+            exist_ads: set = await get_ads_link(db, search.id, ads.keys())
+            print(f"AD_URL_SAMPLE: {list(ads.keys())[0] if ads else 'EMPTY'}")
+            print(f"EXIST_URL_SAMPLE: {list(exist_ads)[0] if exist_ads else 'EMPTY'}")
+            to_save = [ads[link] for link in (ads.keys() - exist_ads)]
             if not to_save: return 
 
             new_ads = [ad.model_dump() for ad in to_save]

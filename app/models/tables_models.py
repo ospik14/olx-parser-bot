@@ -31,7 +31,7 @@ class SearchAd(Base):
     __tablename__='search_ads'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    advert_url: Mapped[int] = mapped_column(ForeignKey('advertisements.advert_url', ondelete='CASCADE'), unique=True)
+    advert_url: Mapped[str] = mapped_column(ForeignKey('advertisements.advert_url', ondelete='CASCADE'))
     search_id: Mapped[int] = mapped_column(ForeignKey('search_tasks.id', ondelete='CASCADE'))
 
 class User(Base):

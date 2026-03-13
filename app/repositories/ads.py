@@ -57,7 +57,7 @@ async def get_searches_for_user(db: AsyncSession, user_id: int):
 
     return searches.scalars().all()
 
-async def get_ads_id(db: AsyncSession, search_id: int, adverts_url: set):
+async def get_ads_link(db: AsyncSession, search_id: int, adverts_url: set):
     query = (
         select(SearchAd.advert_url)
         .where(SearchAd.search_id == search_id)

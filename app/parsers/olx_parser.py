@@ -1,14 +1,9 @@
-from datetime import datetime, timedelta, timezone
 import json
-from zoneinfo import ZoneInfo
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from bs4 import BeautifulSoup
 from curl_cffi import AsyncSession
-from playwright.async_api import Browser, TimeoutError, Error
-from playwright_stealth import stealth_async, StealthConfig
 from schemas.advert import AdsResponse
 
-TZ_KYIV = ZoneInfo("Europe/Kyiv")
 
 def improve_link(url: str, param: dict):
     parsed_url = urlparse(url)

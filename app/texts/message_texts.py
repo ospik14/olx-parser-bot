@@ -17,9 +17,9 @@ ADS_RESPONSE_TEXT = '''
 
 <b>{title}</b>
 
-💰 <b>Ціна:</b> {price}
+💰 <b>Ціна:</b> {price} грн
 📍 <b>Локація:</b> {location}
-⏱️ <b>Час:</b> {date}
+⏱️ <b>Час(знайдено о):</b> {date}
 
 🔗 <a href="{advert_url}">Відкрити оголошення</a>
 
