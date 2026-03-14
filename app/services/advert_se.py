@@ -35,7 +35,7 @@ async def get_my_searches(user_id: int):
 async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask):
     async with sem:
         async with AsyncSessionLocal() as db:
-            time_since_creation = datetime.now(timezone.utc) - search.created_at
+            time_since_creation = datetime.now(timezone.utc) - search.activated_at
             is_warmup_mode = time_since_creation < timedelta(minutes=10)
 
             improved_link = improve_link(search.search_link, {'search[order]':'created_at:desc'})

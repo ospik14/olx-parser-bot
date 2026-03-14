@@ -25,6 +25,10 @@ class SearchTask(Base):
         DateTime(timezone=True), 
         server_default=func.now()
     )
+    activated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        server_default=func.now()
+    )
     user: Mapped['User'] = relationship('User', foreign_keys=[owner_id], back_populates='searches')
 
 class SearchAd(Base):

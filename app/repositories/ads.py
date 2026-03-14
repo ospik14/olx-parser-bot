@@ -112,7 +112,10 @@ async def update_search_status(db: AsyncSession, id: int):
     stmt = (
         update(SearchTask)
         .where(SearchTask.id == id)
-        .values(is_active = not_(SearchTask.is_active))
+        .values(
+            is_active = not_(SearchTask.is_active),
+            activated_at = func.now()
+        )
     )
     await db.execute(stmt)
     
