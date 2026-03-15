@@ -21,7 +21,7 @@ async def return_new_ads(ads_response: dict):
             title=title,
             price=price,
             location=location,
-            date=datetime.now(tz=TZ_KYIV),
+            date=datetime.now(tz=TZ_KYIV).time(),
             advert_url=advert_url,
         )
 

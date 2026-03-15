@@ -56,6 +56,7 @@ async def find_new_ads(sem: asyncio.Semaphore, search: SearchTask):
             try:
                 await create_ads(db, new_ads)
                 await create_searches_ads(db, search_ads)
+                await db.commit()
             except Exception:
                 return
 

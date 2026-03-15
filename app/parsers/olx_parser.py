@@ -33,8 +33,23 @@ async def search_for_ads(page_link: str):
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        with open("olx_html_dump.html", "w", encoding="utf-8") as f:
-            f.write(response.text)
+        additional_data_map = {}
+        ad_cards = soup.find_all('div', {'data-testid': 'l-card'})
+        for card in ad_cards:
+            link_tag = card.find('a', href=True)
+            loc_tag = card.find('p', {'data-testid': 'location-date'})
+            price_tag = card.find('p', {'data-testid': 'ad-price'})
+
+            if link_tag and loc_tag and price_tag:
+                raw_url = link_tag['href'].split('?')[0]
+                ad_url = f"https://www.olx.ua{raw_url}" if raw_url.startswith('/') else raw_url
+
+                full_loc_text = loc_tag.text.strip()
+                clean_location = full_loc_text.split(' - ')[0]
+                price_text = price_tag.text.strip()
+
+                additional_data_map[ad_url] = {'loc': clean_location, 'price': price_text}
+
 
         script_tag = soup.find_all('script', type='application/ld+json')
 
@@ -67,8 +82,8 @@ async def search_for_ads(page_link: str):
             adverts[link] = AdsResponse (                   
                     title = title,
                     image_url = image_url,
-                    price = str(price),
-                    location = location,
+                    price = additional_data_map.get(link).get('price') or price,
+                    location = additional_data_map.get(link).get('loc') or location,
                     advert_url = link
                 ) 
         print('pars done')

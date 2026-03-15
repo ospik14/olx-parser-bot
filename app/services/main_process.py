@@ -1,5 +1,5 @@
 import asyncio
-from repositories.ads import get_premium_active_searches, get_all_active_searches, \
+from repositories.ads import get_priority_active_searches, get_all_active_searches, \
 get_users_searches_count, deactivate_searches
 from services.advert_se import find_new_ads
 from core.database import AsyncSessionLocal
@@ -15,7 +15,7 @@ async def pars_loop():
                 searches = await get_all_active_searches(db)
                 pars_count = 0
             else:
-                searches = await get_premium_active_searches(db)
+                searches = await get_priority_active_searches(db)
                 pars_count += 1
   
             tasks = [
