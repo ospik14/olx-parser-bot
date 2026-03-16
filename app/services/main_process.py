@@ -1,9 +1,8 @@
 import asyncio
-from repositories.ads import get_priority_active_searches, get_all_active_searches, \
+from repositories.searches import get_priority_active_searches, get_all_active_searches, \
 get_users_searches_count, deactivate_searches
 from services.advert_se import find_new_ads
 from core.database import AsyncSessionLocal
-from playwright.async_api import async_playwright
 
 
 async def pars_loop():

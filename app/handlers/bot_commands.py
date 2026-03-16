@@ -2,12 +2,13 @@ from datetime import datetime, timezone, timedelta
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart
 from texts.message_texts import COMMAND_START, SEARCHES_LIMIT, \
-NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT, ADD_SEARCHES, PREMIUM_TEXT
-from services.advert_se import add_new_search_link, get_my_searches, \
+NEW_SEARCHES, HELP_TEXT, MY_SEARCHS_TEXT, ADD_SEARCHES, PREMIUM_TEXT, \
+SEARCH_EXISTS
+from services.searches_se import add_new_search_link, get_my_searches, \
 change_status_in_search, clean_search
 from models.tables_models import User
 from repositories.users import create_user
-from core.exceptions import LimitExceeded
+from core.exceptions import LimitExceeded, SearchExists
 from keyboards.menu import keyboard
 from keyboards.inline import get_search_keyboard
 
@@ -41,6 +42,8 @@ async def new_search_link(message: types.Message):
         await message.answer(NEW_SEARCHES, parse_mode='HTML')
     except LimitExceeded:
         await message.answer(SEARCHES_LIMIT, parse_mode='HTML')
+    except SearchExists:
+        await message.answer(SEARCH_EXISTS, parse_mode='HTML')
 
 @router.message(F.text == 'ℹ️ Допомога')
 async def help_info(message: types.Message):
