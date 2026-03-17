@@ -1,10 +1,7 @@
-from datetime import datetime, timezone, timedelta
-from sqlalchemy import not_, select, update, delete, func, or_
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.exc import DBAPIError, IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.database import AsyncSessionLocal
-from models.tables_models import Advertisement, SearchTask, SearchAd, User
+from models.tables_models import Advertisement, SearchAd
 
 
 async def get_ads_link(db: AsyncSession, search_id: int, adverts_url: set):

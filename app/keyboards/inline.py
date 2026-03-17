@@ -18,3 +18,23 @@ def get_search_keyboard(is_active: bool, search_id: int):
         ]
     )
     return keyboard
+
+async def get_admin_keyboard():
+
+    btn_stats = InlineKeyboardButton(
+        text='📊 Статистика',
+        callback_data='stats'
+    )
+    btn_give_premium = InlineKeyboardButton(
+        text='⭐ Надати преміум',
+        callback_data='premium'
+    )
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [btn_stats], 
+            [btn_give_premium]
+        ]
+    )
+
+    return keyboard
